@@ -1,0 +1,7 @@
+# MONSTER HUNTER RISE
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "dinput8=n,b"

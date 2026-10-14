@@ -1,0 +1,4 @@
+# Garden of Witches
+[config]
+mangohud = "env"
+vrr = "automatic"

@@ -1,0 +1,8 @@
+# Atelier Yumia: The Alchemist of Memories & the Envisioned Land
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+VKBASALT_CONFIG_FILE = "@home/Git/Me/reshade-presets/vkBasalt/DLS.conf"
+ENABLE_VKBASALT = 1

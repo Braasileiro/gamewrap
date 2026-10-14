@@ -1,0 +1,4 @@
+# Rubinite
+[config]
+mangohud = "env"
+vrr = "automatic"

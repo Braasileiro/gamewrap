@@ -1,0 +1,4 @@
+# Granblue Fantasy: Relink
+[config]
+mangohud = "env"
+vrr = "automatic"

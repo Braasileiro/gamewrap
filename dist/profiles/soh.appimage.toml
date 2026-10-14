@@ -1,0 +1,4 @@
+# Ship of Harkinian
+[config]
+mangohud = "wrapper"
+vrr = "automatic"

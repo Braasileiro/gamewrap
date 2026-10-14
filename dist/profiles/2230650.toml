@@ -1,0 +1,4 @@
+# TEVI
+[config]
+mangohud = "env"
+vrr = "automatic"

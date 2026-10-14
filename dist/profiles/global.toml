@@ -1,0 +1,21 @@
+[config]
+# Optional replacement target. Value: an executable name or path.
+# executable = "game.exe"
+
+# Enable or disable GameMode. Values: true or false.
+gamemode = true
+
+# Select the MangoHud mode. Values: "disabled", "env", or "wrapper".
+mangohud = "disabled"
+
+# Select the VRR policy. Values: "automatic", "never", "always", or "unchanged".
+vrr = "unchanged"
+
+# Select the KScreen output used for VRR. Value: "detect" or an output name.
+vrr_output = "detect"
+
+# Hide Steam identification from Proton. Values: true or false.
+hide_steam = false
+
+# Environment paths may start with "@home" or "@target-dir".
+# Add game environment variables under an [env] table.

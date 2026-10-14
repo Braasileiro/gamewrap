@@ -1,0 +1,36 @@
+[tools]
+dprint = "0.63.0"
+golangci-lint = "2.14.0"
+
+[tasks.build]
+description = "Build"
+run = "go build -o dist/gamewrap ./cmd/gamewrap"
+
+[tasks.format]
+description = "Format project files"
+run = """
+golangci-lint fmt
+golangci-lint run --fix
+dprint fmt
+"""
+
+[tasks.test]
+description = "Run tests"
+run = "go test ./..."
+
+[tasks.vet]
+description = "Run static analysis"
+run = "go vet ./..."
+
+[tasks.check]
+description = "Run all checks"
+depends = ["test", "vet"]
+run = """
+golangci-lint fmt --diff
+golangci-lint run
+dprint check
+"""
+
+[tasks.testrace]
+description = "Run tests with the race detector"
+run = "go test -race ./..."

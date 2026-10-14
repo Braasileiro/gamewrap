@@ -1,0 +1,7 @@
+# Granblue Fantasy Versus: Rising
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "winmm=n,b"

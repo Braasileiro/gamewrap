@@ -1,0 +1,4 @@
+# Dungeons And Cat
+[config]
+mangohud = "env"
+vrr = "automatic"

@@ -1,0 +1,4 @@
+# Touhou Koumakyou: New Classic - the Embodiment of Scarlet Devil
+[config]
+mangohud = "env"
+vrr = "automatic"

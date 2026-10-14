@@ -1,0 +1,11 @@
+# NIKKE non-Steam shortcut
+[config]
+mangohud = "env"
+vrr = "automatic"
+hide_steam = true
+
+[env]
+STEAM_COMPAT_DATA_PATH = "/mnt/disks/gumi/games/Standalone/compatdata/nikke"
+UMU_ID = "umu-nikke"
+DISABLE_VK_LAYER_VALVE_steam_overlay_1 = 1
+MANGOHUD_CONFIGFILE = "@home/.config/MangoHud/wine-nikke.conf"

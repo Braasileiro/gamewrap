@@ -1,0 +1,9 @@
+# Atelier Ryza 2: Lost Legends & the Secret Fairy DX
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "d3d11,winmm=n,b"
+VKBASALT_CONFIG_FILE = "@home/Git/Me/reshade-presets/vkBasalt/SMAA.conf"
+ENABLE_VKBASALT = 1

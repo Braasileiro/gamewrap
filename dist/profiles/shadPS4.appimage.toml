@@ -1,0 +1,8 @@
+# shadPS4
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+QT_QPA_PLATFORM = "xcb"
+XDG_DATA_HOME = "@target-dir/data"

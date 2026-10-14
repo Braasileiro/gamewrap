@@ -1,0 +1,9 @@
+# BLUE REFLECTION Quartet
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "d3d11=n,b"
+VKBASALT_CONFIG_FILE = "@home/Git/Me/reshade-presets/vkBasalt/SMAA.conf"
+ENABLE_VKBASALT = 1

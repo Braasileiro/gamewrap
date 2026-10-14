@@ -1,0 +1,7 @@
+# Trails in the Sky 2nd Chapter
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "d3d11,dxgi=n,b"

@@ -1,0 +1,10 @@
+# Atelier Ayesha: The Alchemist of Dusk DX
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "d3d11,msimg32=n,b"
+
+# Blacklisted "Atelier_AyeshaLauncher.exe" and "Atelier_AyeshaEnv.exe" to prevent crashes
+MANGOHUD_CONFIGFILE = "@home/.config/MangoHud/wine-Atelier_Ayesha_EN.conf"

@@ -1,0 +1,11 @@
+# Atelier Firis: The Alchemist and the Mysterious Journey DX
+[config]
+executable = "Atelier_Firis_DX.exe"
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "d3d11,dxgi=n,b"
+
+# Blacklisted "Atelier_Firis_DX_Launcher.exe" and "Atelier_Firis_DX_Env.exe" to prevent crashes
+MANGOHUD_CONFIGFILE = "@home/.config/MangoHud/wine-Atelier_Firis_DX.conf"
