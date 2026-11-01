@@ -11,8 +11,8 @@ mangohud = "disabled"
 # Select the VRR policy. Values: "automatic", "never", "always", or "unchanged".
 vrr = "unchanged"
 
-# Select the KScreen output used for VRR. Value: "detect" or an output name.
-vrr_output = "detect"
+# Select the KScreen output used for VRR. Value: "active-output" or an output name.
+vrr_output = "active-output"
 
 # Hide Steam identification from Proton. Values: true or false.
 hide_steam = false

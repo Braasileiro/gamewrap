@@ -1,0 +1,7 @@
+# FINAL FANTASY RESONANCE
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "dwmapi=n,b"

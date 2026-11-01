@@ -1,0 +1,4 @@
+# Stella Sora
+[config]
+mangohud = "env"
+vrr = "automatic"

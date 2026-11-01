@@ -1,0 +1,7 @@
+# KILL la KILL -IF
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "dinput8=n,b"

@@ -1,0 +1,8 @@
+# Little Noah: Scion of Paradise
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINE_CPU_TOPOLOGY = "6:0,2,4,6,8,10"
+WINEDLLOVERRIDES = "winhttp=n,b"
