@@ -49,6 +49,7 @@ jobs:
           fi
 
           cp -R dist/profiles "${package_dir}/profiles"
+          cp README.md LICENSE "${package_dir}/"
           tar -C artifacts -czf "artifacts/${archive_name}" "${package_name}"
           cd artifacts
           sha256sum "${archive_name}" > "${archive_name}.sha256"
