@@ -14,7 +14,7 @@ import (
 	gameprocess "gamewrap/internal/process"
 )
 
-const version = "2.0.1"
+const version = "2.1.0"
 
 func main() {
 	os.Exit(run())

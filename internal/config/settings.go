@@ -12,7 +12,7 @@ const (
 	VRRAutomatic    VRRMode = "automatic"
 	VRRNever        VRRMode = "never"
 	VRRAlways       VRRMode = "always"
-	VRROutputDetect         = "detect"
+	VRROutputActive         = "active-output"
 )
 
 type Settings struct {
@@ -28,7 +28,7 @@ func ResolveSettings(config ProfileConfig, environment []string) (Settings, []er
 
 	settings := Settings{VRROutput: strings.TrimSpace(vrrOutput)}
 	if settings.VRROutput == "" {
-		settings.VRROutput = VRROutputDetect
+		settings.VRROutput = VRROutputActive
 	}
 
 	var errors []error

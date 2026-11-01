@@ -4,26 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sort"
-	"strings"
+	"slices"
 
 	"gamewrap/internal/config"
 )
 
-const kscreenDoctor = "kscreen-doctor"
-
-// KScreen exposes VRR policies as numeric values in its JSON output.
-const (
-	kscreenVRRNever     = 0
-	kscreenVRRAlways    = 1
-	kscreenVRRAutomatic = 2
-)
+const kscreenCtl = "kscreenctl"
 
 type displayOutput struct {
-	Name      string `json:"name"`
-	Connected bool   `json:"connected"`
-	Enabled   bool   `json:"enabled"`
-	VRRPolicy *int   `json:"vrrPolicy"`
+	Name         string         `json:"name"`
+	Capabilities []string       `json:"capabilities"`
+	VRRPolicy    config.VRRMode `json:"vrrPolicy"`
 }
 
 func (s *Session) enableVRR() {
@@ -50,99 +41,48 @@ func (s *Session) enableVRR() {
 }
 
 func getVRR(commands commandRunner, requestedOutput string) (string, config.VRRMode, error) {
-	outputs, err := getDisplayOutputs(commands)
+	output, err := getDisplayOutput(commands, requestedOutput)
 	if err != nil {
 		return "", "", err
 	}
 
-	output, err := selectVRROutput(outputs, requestedOutput)
-	if err != nil {
-		return "", "", err
+	if !outputSupportsVRR(output) {
+		return "", "", fmt.Errorf("output %s does not support VRR", output.Name)
 	}
 
-	policy, err := vrrPolicyName(output.VRRPolicy)
-	if err != nil {
-		return "", "", fmt.Errorf("output %s: %w", output.Name, err)
-	}
-
-	return output.Name, policy, nil
-}
-
-func getDisplayOutputs(commands commandRunner) ([]displayOutput, error) {
-	var displayConfig struct {
-		Outputs []displayOutput `json:"outputs"`
-	}
-
-	output, err := commands.Run(kscreenDoctor, "--json")
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(output, &displayConfig); err != nil {
-		return nil, err
-	}
-
-	return displayConfig.Outputs, nil
-}
-
-// selectVRROutput detects an output only when exactly one active output supports VRR.
-func selectVRROutput(outputs []displayOutput, requestedOutput string) (displayOutput, error) {
-	if requestedOutput != config.VRROutputDetect {
-		for _, output := range outputs {
-			if output.Name == requestedOutput {
-				if output.VRRPolicy == nil {
-					return displayOutput{}, errors.New("output does not support VRR")
-				}
-
-				return output, nil
-			}
-		}
-
-		return displayOutput{}, fmt.Errorf("output %q not found", requestedOutput)
-	}
-
-	var candidates []displayOutput
-	for _, output := range outputs {
-		if output.Connected && output.Enabled && output.VRRPolicy != nil {
-			candidates = append(candidates, output)
-		}
-	}
-
-	if len(candidates) == 1 {
-		return candidates[0], nil
-	}
-
-	if len(candidates) == 0 {
-		return displayOutput{}, errors.New("no active output with VRR support found")
-	}
-
-	names := make([]string, 0, len(candidates))
-	for _, candidate := range candidates {
-		names = append(names, candidate.Name)
-	}
-
-	sort.Strings(names)
-	return displayOutput{}, fmt.Errorf("multiple active outputs support VRR (%s); set vrr_output explicitly", strings.Join(names, ", "))
-}
-
-func vrrPolicyName(policy *int) (config.VRRMode, error) {
-	if policy == nil {
-		return "", errors.New("output does not support VRR")
-	}
-
-	switch *policy {
-	case kscreenVRRNever:
-		return config.VRRNever, nil
-	case kscreenVRRAlways:
-		return config.VRRAlways, nil
-	case kscreenVRRAutomatic:
-		return config.VRRAutomatic, nil
+	// Return the resolved connector name so restoration cannot follow a changed active output.
+	switch output.VRRPolicy {
+	case config.VRRNever, config.VRRAlways, config.VRRAutomatic:
+		return output.Name, output.VRRPolicy, nil
 	default:
-		return "", fmt.Errorf("unknown VRR policy %d", *policy)
+		return "", "", fmt.Errorf("output %s has unknown VRR policy %q", output.Name, output.VRRPolicy)
 	}
+}
+
+func getDisplayOutput(commands commandRunner, requestedOutput string) (displayOutput, error) {
+	output, err := commands.Run(kscreenCtl, requestedOutput, "--json")
+	if err != nil {
+		return displayOutput{}, err
+	}
+
+	var display displayOutput
+	if err := json.Unmarshal(output, &display); err != nil {
+		return displayOutput{}, err
+	}
+
+	if display.Name == "" {
+		return displayOutput{}, errors.New("output information is missing its name")
+	}
+
+	return display, nil
+}
+
+func outputSupportsVRR(output displayOutput) bool {
+	// kscreenctl reports a VRR policy even for outputs without the VRR capability.
+	return slices.Contains(output.Capabilities, "vrr")
 }
 
 func setVRR(commands commandRunner, output string, policy config.VRRMode) error {
-	_, err := commands.Run(kscreenDoctor, fmt.Sprintf("output.%s.vrrpolicy.%s", output, policy))
+	_, err := commands.Run(kscreenCtl, output, "set-vrr-policy", string(policy))
 	return err
 }

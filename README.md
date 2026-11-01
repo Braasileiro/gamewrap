@@ -51,7 +51,7 @@ are used.
 | Dependency | Required when | Behavior when unavailable |
 | --- | --- | --- |
 | `gamemoderun` | GameMode is enabled | The game does not start |
-| `kscreen-doctor` | The VRR policy is not `"unchanged"` | VRR is skipped, the error is logged, and the game starts normally |
+| `kscreenctl` from KDE Plasma/KScreen 6.8+ | The VRR policy is not `"unchanged"` | VRR is skipped, the error is logged, and the game starts normally |
 | `MangoHud` | The `"env"` or `"wrapper"` mode is selected | The `"wrapper"` mode prevents startup when its executable is missing. The `"env"` mode is not prevalidated |
 | `winecfg` | `--winecfg` runs without a Proton command | The utility does not start |
 | `regedit` | `--regedit` runs without a Proton command | The utility does not start |
@@ -99,7 +99,7 @@ Example `profiles/global.toml`:
 gamemode = true
 mangohud = "disabled"
 vrr = "unchanged"
-vrr_output = "detect"
+vrr_output = "active-output"
 hide_steam = false
 
 [env]
@@ -233,7 +233,7 @@ Other overrides remain available, for example `gamewrap --env WINEPREFIX=/path -
 | `GW_GAMEMODE` | `1` or `0` | Enabled |
 | `GW_MANGOHUD` | `disabled`, `env`, or `wrapper` | Disabled |
 | `GW_VRR` | `automatic`, `never`, `always`, or `unchanged` | Keep current policy |
-| `GW_VRR_OUTPUT` | KScreen output name or `detect` | `detect` |
+| `GW_VRR_OUTPUT` | KScreen output name or `active-output` | `active-output` |
 
 Invalid game and runtime values are logged without preventing the game from starting.
 
@@ -253,15 +253,15 @@ preloads. Other filesystem layouts skip this optimization and still start the ga
 
 VRR profiles use the explicit policies `"automatic"`, `"never"`, `"always"`, and `"unchanged"`. Use
 `vrr = "unchanged"` to override an inherited profile setting and preserve the current host policy
-without invoking `kscreen-doctor`. Use `--env GW_VRR=unchanged` for the same temporary override.
+without invoking `kscreenctl`. Use `--env GW_VRR=unchanged` for the same temporary override.
 
 When gamewrap changes VRR, it restores the previous policy after the game exits. VRR management
-works only on KDE Plasma because it uses KScreen's `kscreen-doctor` utility.
+works only on KDE Plasma 6.8 or newer because it uses KScreen's `kscreenctl` utility.
 
-With `vrr_output = "detect"`, gamewrap selects the only connected and enabled output that reports
-VRR support. If no output qualifies, or more than one does, the game starts without changing VRR and
-the reason is written to the log. Set an explicit output name when multiple active displays support
-VRR.
+With `vrr_output = "active-output"`, gamewrap uses the output active when the game is launched. It
+resolves that value to the connector name before changing VRR, then uses the same connector to
+restore the original policy after the game exits. Set an explicit output name such as `DP-3` when a
+fixed display should always be used.
 
 ### Concurrent games
 
@@ -305,6 +305,5 @@ GW_LOG_FILE=/tmp/gamewrap.log gamewrap -- %command%
 - [GameMode](https://github.com/FeralInteractive/gamemode): `gamemoderun` usage and library preload
   behavior.
 - [MangoHud](https://github.com/flightlessmango/MangoHud): environment, wrapper, and OpenGL modes.
-- [KScreen Doctor](https://invent.kde.org/plasma/libkscreen/-/tree/master/src/doctor): output
-  discovery and VRR policies.
+- [KScreen](https://invent.kde.org/plasma/kscreen): `kscreenctl` output management and VRR policies.
 - [BurntSushi TOML](https://github.com/burntsushi/toml): TOML parser.

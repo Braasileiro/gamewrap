@@ -24,7 +24,7 @@ func TestSessionRestoreUsesResolvedOutputAndCommandRunner(t *testing.T) {
 
 	s.Restore()
 
-	wantCalls := []commandCall{{Name: kscreenDoctor, Args: []string{"output.DP-3.vrrpolicy.never"}}}
+	wantCalls := []commandCall{{Name: kscreenCtl, Args: []string{"DP-3", "set-vrr-policy", "never"}}}
 	if !reflect.DeepEqual(runner.Calls, wantCalls) {
 		t.Fatalf("calls = %v, want %v", runner.Calls, wantCalls)
 	}

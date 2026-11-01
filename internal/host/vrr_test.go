@@ -8,28 +8,15 @@ import (
 	"gamewrap/internal/config"
 )
 
-func TestSelectVRROutputRejectsAmbiguousDetection(t *testing.T) {
-	never := 0
-	outputs := []displayOutput{
-		{Name: "DP-3", Connected: true, Enabled: true, VRRPolicy: &never},
-		{Name: "DP-4", Connected: true, Enabled: true, VRRPolicy: &never},
-	}
-
-	_, err := selectVRROutput(outputs, config.VRROutputDetect)
-	if err == nil || !strings.Contains(err.Error(), "DP-3, DP-4") {
-		t.Fatalf("error = %v, want ambiguous outputs", err)
-	}
-}
-
 func TestEnableVRRUsesResolvedAutomaticOutput(t *testing.T) {
 	runner := &fakeCommandRunner{Results: map[string]fakeCommandResult{
-		commandKey(kscreenDoctor, "--json"): {
-			Output: []byte(`{"outputs":[{"name":"DP-3","connected":true,"enabled":true,"vrrPolicy":0},{"name":"HDMI-A-1","connected":true,"enabled":false}]}`),
+		commandKey(kscreenCtl, config.VRROutputActive, "--json"): {
+			Output: []byte(`{"name":"DP-3","capabilities":["vrr","hdr"],"vrrPolicy":"never"}`),
 		},
 	}}
 	s := &Session{
 		log:      discardLogger(),
-		settings: config.Settings{VRR: "automatic", VRROutput: config.VRROutputDetect},
+		settings: config.Settings{VRR: "automatic", VRROutput: config.VRROutputActive},
 		commands: runner,
 	}
 
@@ -40,11 +27,24 @@ func TestEnableVRRUsesResolvedAutomaticOutput(t *testing.T) {
 	}
 
 	wantCalls := []commandCall{
-		{Name: kscreenDoctor, Args: []string{"--json"}},
-		{Name: kscreenDoctor, Args: []string{"output.DP-3.vrrpolicy.automatic"}},
+		{Name: kscreenCtl, Args: []string{config.VRROutputActive, "--json"}},
+		{Name: kscreenCtl, Args: []string{"DP-3", "set-vrr-policy", "automatic"}},
 	}
 
 	if !reflect.DeepEqual(runner.Calls, wantCalls) {
 		t.Fatalf("calls = %v, want %v", runner.Calls, wantCalls)
+	}
+}
+
+func TestGetVRRRequiresVRRCapability(t *testing.T) {
+	runner := &fakeCommandRunner{Results: map[string]fakeCommandResult{
+		commandKey(kscreenCtl, "HDMI-A-1", "--json"): {
+			Output: []byte(`{"name":"HDMI-A-1","capabilities":["icc"],"vrrPolicy":"never"}`),
+		},
+	}}
+
+	_, _, err := getVRR(runner, "HDMI-A-1")
+	if err == nil || !strings.Contains(err.Error(), "does not support VRR") {
+		t.Fatalf("error = %v, want unsupported VRR error", err)
 	}
 }

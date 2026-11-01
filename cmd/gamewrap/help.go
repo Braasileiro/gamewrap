@@ -26,7 +26,7 @@ Game/runtime variables:
   GW_GAMEMODE     GameMode: 1 or 0 (default: 1)
   GW_MANGOHUD     MangoHud: disabled, env, or wrapper (default: disabled)
   GW_VRR          VRR: automatic, never, always, or unchanged (default: unchanged)
-  GW_VRR_OUTPUT   KScreen output name or detect (default: detect)
+  GW_VRR_OUTPUT   KScreen output name or active-output (default: active-output)
   GW_EXECUTABLE   Replace the game target and discard its arguments
 
 Wrapper environment:
