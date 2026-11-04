@@ -14,7 +14,7 @@ import (
 	gameprocess "gamewrap/internal/process"
 )
 
-const version = "2.1.0"
+const version = "2.1.1"
 
 func main() {
 	os.Exit(run())
@@ -54,13 +54,42 @@ func run() int {
 }
 
 func runUtility(options invocationOptions, args, inheritedEnvironment []string, logger *log.Logger) int {
-	expandedEnvironment, err := config.ExpandEnvironmentTokens(options.environment, "")
+	profile := config.GameProfile{Env: make(map[string]string)}
+	if invocation.IsProtonCommand(args) {
+		targetName := invocation.ExecutableName(args)
+		appID := invocation.SteamAppID(inheritedEnvironment)
+		var loadedProfiles []string
+		var profileErrors []error
+		profile, loadedProfiles, profileErrors = config.LoadGameProfile(targetName, appID)
+		logLoadedProfiles(logger, loadedProfiles, profileErrors)
+	}
+
+	targetDir := ""
+	if config.EnvironmentUsesTargetDir(profile.Env) || config.EnvironmentUsesTargetDir(options.environment) {
+		var err error
+		targetDir, err = invocation.ExecutableDirectory(args)
+		if err != nil {
+			logger.Printf("environment error: %v", err)
+			fmt.Fprintf(os.Stderr, "gamewrap: %v\n", err)
+			return 1
+		}
+	}
+
+	expandedProfileEnvironment, err := config.ExpandEnvironmentTokens(profile.Env, targetDir)
 	if err != nil {
-		logger.Printf("environment error: %v", err)
+		logger.Printf("profile environment error: %v", err)
 		fmt.Fprintf(os.Stderr, "gamewrap: %v\n", err)
 		return 1
 	}
 
+	expandedEnvironment, err := config.ExpandEnvironmentTokens(options.environment, targetDir)
+	if err != nil {
+		logger.Printf("command environment error: %v", err)
+		fmt.Fprintf(os.Stderr, "gamewrap: %v\n", err)
+		return 1
+	}
+
+	profile.Env = expandedProfileEnvironment
 	options.environment = expandedEnvironment
 
 	hideSteam := options.hideSteam != nil && *options.hideSteam
@@ -79,9 +108,9 @@ func runUtility(options invocationOptions, args, inheritedEnvironment []string, 
 	}
 
 	platform := invocation.ProtonLogFields(args)
-	_, commandVars := environmentOverrideCounts(nil, options.environment)
-	if commandVars > 0 {
-		logger.Printf("environment resolved: profile_vars=0 command_vars=%d", commandVars)
+	profileVars, commandVars := environmentOverrideCounts(profile.Env, options.environment)
+	if profileVars+commandVars > 0 {
+		logger.Printf("environment resolved: profile_vars=%d command_vars=%d", profileVars, commandVars)
 	}
 
 	if replaced == "" {
@@ -91,7 +120,7 @@ func runUtility(options invocationOptions, args, inheritedEnvironment []string, 
 	}
 
 	started := time.Now()
-	utilityEnvironment := config.EnvironmentWithOverrides(inheritedEnvironment, options.environment)
+	utilityEnvironment := resolvedUtilityEnvironment(inheritedEnvironment, profile.Env, options.environment)
 	code := gameprocess.Run(args, invocation.UtilityEnvironment(utilityEnvironment), logger)
 	logger.Printf("utility exited: name=%s status=%d duration=%s", options.utility, code, elapsedTime(started))
 	return code
@@ -101,18 +130,7 @@ func runGame(options invocationOptions, args, inheritedEnvironment []string, log
 	targetName := invocation.ExecutableName(args)
 	appID := invocation.SteamAppID(inheritedEnvironment)
 	profile, loadedProfiles, profileErrors := config.LoadGameProfile(targetName, appID)
-	if len(loadedProfiles) > 0 {
-		profileNames := make([]string, 0, len(loadedProfiles))
-		for _, path := range loadedProfiles {
-			profileNames = append(profileNames, filepath.Base(path))
-		}
-
-		logger.Printf("profiles applied: %s", strings.Join(profileNames, ", "))
-	}
-
-	for _, err := range profileErrors {
-		logger.Printf("profile: %v", err)
-	}
+	logLoadedProfiles(logger, loadedProfiles, profileErrors)
 
 	profileVars, commandVars := environmentOverrideCounts(profile.Env, options.environment)
 	if profileVars+commandVars > 0 {
@@ -197,6 +215,26 @@ func runGame(options invocationOptions, args, inheritedEnvironment []string, log
 	code := gameprocess.RunGame(args, runtime.Environment, runtime.GameMode, runtime.MangoHudMode, logger)
 	logger.Printf("game exited: name=%s status=%d duration=%s", gameName, code, elapsedTime(started))
 	return code
+}
+
+func resolvedUtilityEnvironment(inherited []string, profile, command map[string]string) []string {
+	environment := config.EnvironmentWithOverrides(inherited, profile)
+	return config.EnvironmentWithOverrides(environment, command)
+}
+
+func logLoadedProfiles(logger *log.Logger, loadedProfiles []string, profileErrors []error) {
+	if len(loadedProfiles) > 0 {
+		profileNames := make([]string, 0, len(loadedProfiles))
+		for _, path := range loadedProfiles {
+			profileNames = append(profileNames, filepath.Base(path))
+		}
+
+		logger.Printf("profiles applied: %s", strings.Join(profileNames, ", "))
+	}
+
+	for _, err := range profileErrors {
+		logger.Printf("profile: %v", err)
+	}
 }
 
 func elapsedTime(started time.Time) time.Duration {

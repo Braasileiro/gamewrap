@@ -221,9 +221,10 @@ gamewrap --regedit -- %command%
 ```
 
 In this mode, gamewrap preserves the Steam Linux Runtime command but replaces the game executable
-with the requested Wine utility. GameMode, VRR, and MangoHud are disabled. Profiles are not loaded.
-Other overrides remain available, for example `gamewrap --env WINEPREFIX=/path --winecfg`. Pass
-`--hide-steam` explicitly when it is needed with a Proton utility.
+with the requested Wine utility. Environment values from the global, executable, and Steam App ID
+profiles are loaded, followed by `--env` overrides. Profile `[config]` values are ignored, and
+GameMode, VRR, and MangoHud environment settings are disabled. Pass `--hide-steam` explicitly when
+it is needed with a Proton utility.
 
 ## Game and runtime variables
 

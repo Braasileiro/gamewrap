@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestParseInvocationOptions(t *testing.T) {
 	options, args, err := parseInvocationOptions([]string{
@@ -31,5 +34,23 @@ func TestParseInvocationOptions(t *testing.T) {
 func TestParseInvocationOptionsRequiresSeparator(t *testing.T) {
 	if _, _, err := parseInvocationOptions([]string{"game"}); err == nil {
 		t.Fatal("expected missing separator error")
+	}
+}
+
+func TestResolvedUtilityEnvironmentPrecedence(t *testing.T) {
+	inherited := []string{"INHERITED=kept", "SHARED=inherited"}
+	profile := map[string]string{"PROFILE_ONLY": "enabled", "SHARED": "profile"}
+	command := map[string]string{"COMMAND_ONLY": "enabled", "SHARED": "command"}
+
+	got := resolvedUtilityEnvironment(inherited, profile, command)
+	want := []string{
+		"INHERITED=kept",
+		"PROFILE_ONLY=enabled",
+		"COMMAND_ONLY=enabled",
+		"SHARED=command",
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("utility environment = %v, want %v", got, want)
 	}
 }
