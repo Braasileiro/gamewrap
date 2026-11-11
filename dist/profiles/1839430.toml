@@ -1,0 +1,8 @@
+# Dolls Nest
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+ENABLE_VKBASALT = 1
+VKBASALT_CONFIG_FILE = "@home/Git/Me/reshade-presets/vkBasalt/DLS.conf"

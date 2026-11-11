@@ -1,0 +1,4 @@
+# Stellar Blade
+[config]
+mangohud = "env"
+vrr = "automatic"
