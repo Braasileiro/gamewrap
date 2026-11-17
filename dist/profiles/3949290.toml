@@ -1,0 +1,4 @@
+# Ys X: Proud Nordics
+[config]
+mangohud = "env"
+vrr = "automatic"

@@ -1,0 +1,7 @@
+# SILENT HILL f
+[config]
+mangohud = "env"
+vrr = "automatic"
+
+[env]
+WINEDLLOVERRIDES = "version=n,b"

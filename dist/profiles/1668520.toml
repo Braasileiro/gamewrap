@@ -1,0 +1,4 @@
+# The Legend of Heroes: Trails to Azure
+[config]
+mangohud = "env"
+vrr = "automatic"
