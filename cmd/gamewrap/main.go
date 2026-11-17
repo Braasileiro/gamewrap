@@ -14,7 +14,7 @@ import (
 	gameprocess "gamewrap/internal/process"
 )
 
-const version = "2.1.2"
+const version = "2.1.3"
 
 func main() {
 	os.Exit(run())
@@ -180,6 +180,14 @@ func runGame(options invocationOptions, args, inheritedEnvironment []string, log
 		logger.Printf("hide Steam error: %v", err)
 		fmt.Fprintf(os.Stderr, "gamewrap: %v\n", err)
 		return 1
+	}
+
+	if runtime.GameMode && invocation.IsProtonCommand(args) {
+		var enabled bool
+		runtime.Environment, enabled = gameprocess.EnvironmentWithGameModePreload(runtime.Environment)
+		if enabled {
+			logger.Printf("GameMode client library preload enabled")
+		}
 	}
 
 	if err := gameprocess.ValidateGameDependencies(runtime.GameMode, runtime.MangoHudMode); err != nil {

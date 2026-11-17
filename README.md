@@ -241,7 +241,14 @@ Invalid game and runtime values are logged without preventing the game from star
 ### GameMode
 
 Set `gamemode = false` under `[config]`, or use `--env GW_GAMEMODE=0`, to run the game directly
-without `gamemoderun` and remove GameMode as a runtime dependency.
+without `gamemoderun`. Disabling it also skips the Proton GameMode library preload and removes
+GameMode as a runtime dependency.
+
+For Proton commands on Fedora/RHEL-style multilib layouts, GameMode prepends
+`/usr/$LIB/libgamemode.so.0` to `LD_PRELOAD` when both the i686 and x86-64 libraries are installed.
+This makes the client library available inside Steam Linux Runtime while preserving existing
+preloads. Other filesystem layouts skip this compatibility workaround and still start the game
+normally through `gamemoderun`.
 
 ### VRR
 
@@ -296,7 +303,7 @@ GW_LOG_FILE=/tmp/gamewrap.log gamewrap -- %command%
   generations and `pressure-vessel` behavior.
 - [Proton](https://github.com/ValveSoftware/Proton): Proton commands, environment, and Steam
   compatibility behavior.
-- [GameMode](https://github.com/FeralInteractive/gamemode): `gamemoderun` usage and integration
+- [GameMode](https://github.com/FeralInteractive/gamemode): `gamemoderun` usage and library preload
   behavior.
 - [MangoHud](https://github.com/flightlessmango/MangoHud): environment, wrapper, and OpenGL modes.
 - [KScreen](https://invent.kde.org/plasma/kscreen): `kscreenctl` output management and VRR policies.
